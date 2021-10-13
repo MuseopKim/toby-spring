@@ -4,7 +4,7 @@ import com.example.tobyspring.user.domain.User;
 
 import java.sql.*;
 
-public class UserDao {
+public abstract class UserDao {
 
     public void add(User user) throws ClassNotFoundException, SQLException {
         Connection connection = getConnection();
@@ -41,30 +41,5 @@ public class UserDao {
         return user;
     }
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        UserDao dao = new UserDao();
-
-        User user = new User();
-        user.setId("userId");
-        user.setName("username");
-        user.setPassword("password");
-
-        dao.add(user);
-
-        System.out.println(user.getId() + "등록 성공");
-
-        User user2 = dao.get(user.getId());
-
-        System.out.println(user2.getName());
-        System.out.println(user.getPassword());
-
-        System.out.println(user2.getId() + "조회 성공");
-    }
-
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/springbook", "spring", "book");
-ㅎ
-        return connection;
-    }
+    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 }
