@@ -53,4 +53,9 @@ public class UserDao {
 
         return user;
     }
+
+    // 수정자 메소드 DI
+    public void setConnectionMaker(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
 }
