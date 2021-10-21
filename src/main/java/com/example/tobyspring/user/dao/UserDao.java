@@ -1,14 +1,21 @@
 package com.example.tobyspring.user.dao;
 
 import com.example.tobyspring.user.domain.User;
+import lombok.NoArgsConstructor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
+@NoArgsConstructor
 public class UserDao {
 
     private DataSource dataSource;
+    private ConnectionMaker connectionMaker;
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
 
     // 수정자 메소드 DI
     public void setDataSource(DataSource dataSource) {
