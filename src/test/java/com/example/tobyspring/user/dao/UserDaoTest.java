@@ -19,20 +19,30 @@ class UserDaoTest {
 
         UserDao userDao = context.getBean("userDao", UserDao.class);
 
+        User user1 = new User();
+        user1.setId("Id1");
+        user1.setName("Name1");
+        user1.setPassword("spring");
+
+        User user2 = new User();
+        user2.setId("Id2");
+        user2.setName("Name2");
+        user2.setPassword("spring");
+
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
-        User user = new User();
-        user.setId("Id");
-        user.setName("Name");
-        user.setPassword("spring");
+        userDao.add(user1);
+        userDao.add(user2);
+        assertThat(userDao.getCount()).isEqualTo(2);
 
-        userDao.add(user);
-        assertThat(userDao.getCount()).isEqualTo(1);
+        User user1get = userDao.get(user1.getId());
+        assertThat(user1get.getName()).isEqualTo(user1.getName());
+        assertThat(user1get.getPassword()).isEqualTo(user1.getPassword());
 
-        User user2 = userDao.get(user.getId());
-        assertThat(user2.getName()).isEqualTo(user.getName());
-        assertThat(user2.getPassword()).isEqualTo(user.getPassword());
+        User user2get = userDao.get(user2.getId());
+        assertThat(user2get.getName()).isEqualTo(user2.getName());
+        assertThat(user2get.getPassword()).isEqualTo(user2.getPassword());
     }
 
     @Test
