@@ -1,24 +1,32 @@
 package com.example.tobyspring.user.dao;
 
 import com.example.tobyspring.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 
+import javax.transaction.Transactional;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
+@Transactional
+@SpringBootTest
 class UserDaoTest {
+
+    private UserDao userDao;
+
+    @BeforeEach
+    void setup() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        userDao = context.getBean("userDao", UserDao.class);
+    }
 
     @Test
     void addAndGet() throws SQLException, ClassNotFoundException {
-        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-
-        UserDao userDao = context.getBean("userDao", UserDao.class);
-
         User user1 = new User();
         user1.setId("Id1");
         user1.setName("Name1");
@@ -47,10 +55,6 @@ class UserDaoTest {
 
     @Test
     void count() throws SQLException, ClassNotFoundException {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-
-        UserDao userDao = context.getBean("userDao", UserDao.class);
-
         User user1 = new User();
         User user2 = new User();
         User user3 = new User();
