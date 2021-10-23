@@ -3,30 +3,33 @@ package com.example.tobyspring.user.dao;
 import com.example.tobyspring.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 
 import javax.transaction.Transactional;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ContextConfiguration(locations = "/applicationContext.xml")
 @Transactional
 @SpringBootTest
 class UserDaoTest {
 
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
     private UserDao userDao;
+
+    private User user1;
+    private User user2;
+    private User user3;
 
     @BeforeEach
     void setup() {
-        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-
-        userDao = context.getBean("userDao", UserDao.class);
-    }
-
-    @Test
-    void addAndGet() throws SQLException, ClassNotFoundException {
         User user1 = new User();
         user1.setId("Id1");
         user1.setName("Name1");
@@ -37,6 +40,14 @@ class UserDaoTest {
         user2.setName("Name2");
         user2.setPassword("spring");
 
+        User user3 = new User();
+        user3.setId("Id3");
+        user3.setName("Name3");
+        user3.setPassword("spring");
+    }
+
+    @Test
+    void addAndGet() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
@@ -55,10 +66,6 @@ class UserDaoTest {
 
     @Test
     void count() throws SQLException, ClassNotFoundException {
-        User user1 = new User();
-        User user2 = new User();
-        User user3 = new User();
-
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
