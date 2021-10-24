@@ -8,7 +8,8 @@ public class CountingDaoFactory {
 
     @Bean(name = "countingDao")
     public UserDao userDao() {
-        return new UserDao(connectionMaker());
+//        return new UserDao(connectionMaker());
+        return userDao();
     }
 
     @Bean

@@ -100,30 +100,8 @@ public abstract class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = makeStatement(connection);
-            preparedStatement.execute();
-        } catch (SQLException exception) {
-            throw exception;
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException exception) {
-                }
-            }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException exception) {
-                }
-            }
-        }
+        StatementStrategy strategy = new DeleteAllStatement();
+        jdbcContextWithStatementStrategy(strategy);
     }
 
     public int getCount() throws SQLException {
@@ -149,6 +127,33 @@ public abstract class UserDao {
                 }
             }
 
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException exception) {
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                }
+            }
+        }
+    }
+
+    public void jdbcContextWithStatementStrategy(StatementStrategy strategy) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = strategy.makePreparedStatement(connection);
+            preparedStatement.execute();
+        } catch (SQLException exception) {
+            throw exception;
+        } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close();
