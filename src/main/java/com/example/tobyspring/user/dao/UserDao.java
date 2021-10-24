@@ -23,35 +23,8 @@ public abstract class UserDao {
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = dataSource.getConnection();
-
-            preparedStatement = connection.prepareStatement("INSERT INTO users (id, name, password) VALUES (?,?,?)");
-            preparedStatement.setString(1, user.getId());
-            preparedStatement.setString(2, user.getName());
-            preparedStatement.setString(3, user.getPassword());
-
-            preparedStatement.executeUpdate();
-        } catch (SQLException exception) {
-            throw exception;
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException exception) {
-                }
-            }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException exception) {
-                }
-            }
-        }
+        StatementStrategy strategy = new AddStatement(user);
+        jdbcContextWithStatementStrategy(strategy);
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
