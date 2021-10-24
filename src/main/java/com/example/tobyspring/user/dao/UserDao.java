@@ -133,7 +133,9 @@ public abstract class UserDao {
 
         try {
             connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement("SELECT COUNT(*) FROM users");
+            StatementStrategy strategy = new DeleteAllStatement();
+
+            preparedStatement = strategy.makePreparedStatement(connection);
             preparedStatement.executeQuery();
             resultSet.next();
             return resultSet.getInt(1);
