@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @NoArgsConstructor
-public class UserDao {
+public abstract class UserDao {
 
     private DataSource dataSource;
     private ConnectionMaker connectionMaker;
@@ -105,7 +105,7 @@ public class UserDao {
 
         try {
             connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement("DELETE FROM users");
+            preparedStatement = makeStatement(connection);
             preparedStatement.execute();
         } catch (SQLException exception) {
             throw exception;
@@ -162,4 +162,6 @@ public class UserDao {
             }
         }
     }
+
+    abstract protected PreparedStatement makeStatement(Connection connection) throws SQLException;
 }
