@@ -23,64 +23,143 @@ public class UserDao {
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection connection = dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (id, name, password) VALUES (?,?,?)");
-        preparedStatement.setString(1, user.getId());
-        preparedStatement.setString(2, user.getName());
-        preparedStatement.setString(3, user.getPassword());
+        try {
+            connection = dataSource.getConnection();
 
-        preparedStatement.executeUpdate();
+            preparedStatement = connection.prepareStatement("INSERT INTO users (id, name, password) VALUES (?,?,?)");
+            preparedStatement.setString(1, user.getId());
+            preparedStatement.setString(2, user.getName());
+            preparedStatement.setString(3, user.getPassword());
 
-        preparedStatement.close();
-        connection.close();
+            preparedStatement.executeUpdate();
+        } catch (SQLException exception) {
+            throw exception;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException exception) {
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                }
+            }
+        }
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection connection = dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE id = ?");
-        preparedStatement.setString(1, id);
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE id = ?");
+            preparedStatement.setString(1, id);
 
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
 
-        User user = new User();
-        user.setId(resultSet.getString("id"));
-        user.setName(resultSet.getString("name"));
-        user.setPassword(resultSet.getString("password"));
+            User user = new User();
+            user.setId(resultSet.getString("id"));
+            user.setName(resultSet.getString("name"));
+            user.setPassword(resultSet.getString("password"));
 
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
+            return user;
+        } catch (SQLException exception) {
+            throw exception;
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException exception) {
+                }
+            }
 
-        return user;
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException exception) {
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                }
+            }
+        }
     }
 
     public void deleteAll() throws SQLException {
-        Connection connection = dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
-        PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users");
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement("DELETE FROM users");
+            preparedStatement.execute();
+        } catch (SQLException exception) {
+            throw exception;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException exception) {
+                }
+            }
 
-        preparedStatement.execute();
-
-        preparedStatement.close();
-        connection.close();
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                }
+            }
+        }
     }
 
     public int getCount() throws SQLException {
-        Connection connection = dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT COUNT(*) FROM users");
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement("SELECT COUNT(*) FROM users");
+            preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (SQLException exception) {
+            throw exception;
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException exception) {
+                }
+            }
 
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
-        int count = resultSet.getInt(1);
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException exception) {
+                }
+            }
 
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
-
-        return count;
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                }
+            }
+        }
     }
 }
