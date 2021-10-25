@@ -22,21 +22,15 @@ public abstract class UserDao {
         this.dataSource = dataSource;
     }
 
-    public void add(final User user) throws ClassNotFoundException, SQLException {
-        class AddStatement implements StatementStrategy {
+    public void add(User user) throws ClassNotFoundException, SQLException {
+        jdbcContextWithStatementStrategy(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users(id, name, password) VALUES(?,?,?)");
+            preparedStatement.setString(1, user.getId());
+            preparedStatement.setString(2, user.getName());
+            preparedStatement.setString(3, user.getPassword());
 
-            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (id, name, password) VALUES (?,?,?)");
-                preparedStatement.setString(1, user.getId());
-                preparedStatement.setString(2, user.getName());
-                preparedStatement.setString(3, user.getPassword());
-
-                return preparedStatement;
-            }
-        }
-
-        StatementStrategy strategy = new AddStatement();
-        jdbcContextWithStatementStrategy(strategy);
+            return preparedStatement;
+        });
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
@@ -85,8 +79,7 @@ public abstract class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        StatementStrategy strategy = new DeleteAllStatement();
-        jdbcContextWithStatementStrategy(strategy);
+        jdbcContextWithStatementStrategy(connection -> connection.prepareStatement("DELETE FROM users"));
     }
 
     public int getCount() throws SQLException {
