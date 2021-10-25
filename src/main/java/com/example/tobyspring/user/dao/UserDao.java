@@ -8,22 +8,26 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @NoArgsConstructor
-public abstract class UserDao {
+public class UserDao {
 
     private DataSource dataSource;
     private ConnectionMaker connectionMaker;
+    private JdbcContext jdbcContext;
 
     public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }
 
-    // 수정자 메소드 DI
+    public void setJdbcContext(JdbcContext jdbcContext) {
+        this.jdbcContext = jdbcContext;
+    }
+
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public void add(User user) throws ClassNotFoundException, SQLException {
-        jdbcContextWithStatementStrategy(connection -> {
+    public void add(final User user) throws ClassNotFoundException, SQLException {
+        this.jdbcContext.workWithStatementStrategy(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users(id, name, password) VALUES(?,?,?)");
             preparedStatement.setString(1, user.getId());
             preparedStatement.setString(2, user.getName());
@@ -79,7 +83,7 @@ public abstract class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatementStrategy(connection -> connection.prepareStatement("DELETE FROM users"));
+        this.jdbcContext.workWithStatementStrategy(connection -> connection.prepareStatement("DELETE FROM users"));
     }
 
     public int getCount() throws SQLException {
@@ -147,6 +151,4 @@ public abstract class UserDao {
             }
         }
     }
-
-    abstract protected PreparedStatement makeStatement(Connection connection) throws SQLException;
 }
