@@ -18,11 +18,11 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
-    public void setJdbcContext(JdbcContext jdbcContext) {
-        this.jdbcContext = jdbcContext;
-    }
-
     public void setDataSource(DataSource dataSource) {
+        this.jdbcContext = new JdbcContext();
+
+        this.jdbcContext.setDataSource(dataSource);
+
         this.dataSource = dataSource;
     }
 
@@ -83,7 +83,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(connection -> connection.prepareStatement("DELETE FROM users"));
+        executeSql("delete from users");
     }
 
     public int getCount() throws SQLException {
@@ -125,30 +125,13 @@ public class UserDao {
         }
     }
 
-    public void jdbcContextWithStatementStrategy(StatementStrategy strategy) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+    private void executeSql(final String query) throws SQLException {
+        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
 
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = strategy.makePreparedStatement(connection);
-            preparedStatement.execute();
-        } catch (SQLException exception) {
-            throw exception;
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException exception) {
-                }
+            @Override
+            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+                return connection.prepareStatement(query);
             }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException exception) {
-                }
-            }
-        }
+        });
     }
 }
