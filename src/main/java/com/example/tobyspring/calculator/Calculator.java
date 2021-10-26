@@ -29,12 +29,12 @@ public class Calculator {
         }
     }
 
-    public Integer lineReadTemplate(String filePath, LineCallback lineCallback, int initValue) throws IOException {
+    public <T> T lineReadTemplate(String filePath, LineCallback<T> lineCallback, T initValue) throws IOException {
         BufferedReader bufferedReader = null;
 
         try {
             bufferedReader = new BufferedReader(new FileReader(filePath));
-            Integer result = initValue;
+            T result = initValue;
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
                 result = lineCallback.doSomethingWithLine(line, result);
@@ -49,7 +49,7 @@ public class Calculator {
     }
 
     public Integer calcSum(String filePath) throws IOException {
-        LineCallback sumCallback = new LineCallback() {
+        LineCallback<Integer> sumCallback = new LineCallback<>() {
 
             @Override
             public Integer doSomethingWithLine(String line, Integer value) {
@@ -61,7 +61,7 @@ public class Calculator {
     }
 
     public Integer calMultiply(String filePath) throws IOException {
-        LineCallback multiplyCallback = new LineCallback() {
+        LineCallback<Integer> multiplyCallback = new LineCallback<>() {
 
             @Override
             public Integer doSomethingWithLine(String line, Integer value) {
