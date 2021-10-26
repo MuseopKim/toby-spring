@@ -29,22 +29,46 @@ public class Calculator {
         }
     }
 
+    public Integer lineReadTemplate(String filePath, LineCallback lineCallback, int initValue) throws IOException {
+        BufferedReader bufferedReader = null;
+
+        try {
+            bufferedReader = new BufferedReader(new FileReader(filePath));
+            Integer result = initValue;
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                result = lineCallback.doSomethingWithLine(line, result);
+            }
+
+            return result;
+        } catch (IOException exception) {
+            throw exception;
+        } finally {
+
+        }
+    }
+
     public Integer calcSum(String filePath) throws IOException {
-        BufferedReaderCallback sumCallback = new BufferedReaderCallback() {
+        LineCallback sumCallback = new LineCallback() {
 
             @Override
-            public Integer doSomethingWithReader(BufferedReader bufferedReader) throws IOException {
-                Integer sum = 0;
-                String line = null;
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    sum += Integer.valueOf(line);
-                }
-
-                return sum;
+            public Integer doSomethingWithLine(String line, Integer value) {
+                return value + Integer.parseInt(line);
             }
         };
 
-        return fileReadTemplate(filePath, sumCallback);
+        return lineReadTemplate(filePath, sumCallback, 0);
+    }
+
+    public Integer calMultiply(String filePath) throws IOException {
+        LineCallback multiplyCallback = new LineCallback() {
+
+            @Override
+            public Integer doSomethingWithLine(String line, Integer value) {
+                return value * Integer.parseInt(line);
+            }
+        };
+
+        return lineReadTemplate(filePath, multiplyCallback, 1);
     }
 }
