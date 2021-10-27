@@ -10,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.transaction.Transactional;
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,5 +78,25 @@ class UserDaoTest {
 
         userDao.add(user3);
         assertThat(userDao.getCount()).isEqualTo(3);
+    }
+
+    @Test
+    void getAll() throws SQLException {
+        userDao.deleteAll();
+
+        userDao.add(user1);
+        List<User> users1 = userDao.getAll();
+        assertThat(users1.size()).isEqualTo(1);
+        assertThat(user1.getId()).isEqualTo(users1.get(0).getId());
+
+        userDao.add(user2);
+        List<User> users2 = userDao.getAll();
+        assertThat(users2.size()).isEqualTo(2);
+        assertThat(user2.getId()).isEqualTo(users2.get(0).getId());
+
+        userDao.add(user3);
+        List<User> users3 = userDao.getAll();
+        assertThat(users3.size()).isEqualTo(3);
+        assertThat(user3.getId()).isEqualTo(users1.get(0).getId());
     }
 }

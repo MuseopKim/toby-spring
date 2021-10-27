@@ -2,16 +2,13 @@ package com.example.tobyspring.user.dao;
 
 import com.example.tobyspring.user.domain.User;
 import lombok.NoArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 @NoArgsConstructor
 public class UserDao {
@@ -35,48 +32,33 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+        return this.jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?",
+                new Object[]{id}, new RowMapper<User>() {
+                    @Override
+                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        User user = new User();
+                        user.setId(rs.getString("id"));
+                        user.setName(rs.getString("name"));
+                        user.setPassword(rs.getString("password"));
+                        return user;
+                    }
+                });
+    }
 
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE id = ?");
-            preparedStatement.setString(1, id);
+    public List<User> getAll() {
+        return this.jdbcTemplate.query("SELECT * FROM users ORDER BY id",
+                new RowMapper<User>() {
 
-            resultSet = preparedStatement.executeQuery();
-            resultSet.next();
+                    @Override
+                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        User user = new User();
+                        user.setId(rs.getString("id"));
+                        user.setName(rs.getString("name"));
+                        user.setPassword(rs.getString("password"));
 
-            User user = new User();
-            user.setId(resultSet.getString("id"));
-            user.setName(resultSet.getString("name"));
-            user.setPassword(resultSet.getString("password"));
-
-            return user;
-        } catch (SQLException exception) {
-            throw exception;
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException exception) {
-                }
-            }
-
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException exception) {
-                }
-            }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException exception) {
-                }
-            }
-        }
+                        return user;
+                    }
+                });
     }
 
     public void deleteAll() throws SQLException {
