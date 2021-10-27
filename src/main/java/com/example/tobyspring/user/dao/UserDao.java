@@ -2,39 +2,33 @@ package com.example.tobyspring.user.dao;
 
 import com.example.tobyspring.user.domain.User;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @NoArgsConstructor
 public class UserDao {
 
     private DataSource dataSource;
     private ConnectionMaker connectionMaker;
-    private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
     public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }
 
     public void setDataSource(DataSource dataSource) {
-        this.jdbcContext = new JdbcContext();
-
-        this.jdbcContext.setDataSource(dataSource);
-
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dataSource = dataSource;
     }
 
-    public void add(final User user) throws ClassNotFoundException, SQLException {
-        this.jdbcContext.workWithStatementStrategy(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users(id, name, password) VALUES(?,?,?)");
-            preparedStatement.setString(1, user.getId());
-            preparedStatement.setString(2, user.getName());
-            preparedStatement.setString(3, user.getPassword());
-
-            return preparedStatement;
-        });
+    public void add(final User user) {
+        this.jdbcTemplate.update("INSERT INTO users(id, name, password) VALUES(?, ?, ?)",
+                user.getId(), user.getName(), user.getPassword());
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
@@ -83,7 +77,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContext.executeSql("delete from users");
+        this.jdbcTemplate.update("DELETE FROM users");
     }
 
     public int getCount() throws SQLException {
