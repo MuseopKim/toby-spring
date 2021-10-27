@@ -2,7 +2,10 @@ package com.example.tobyspring.user.dao;
 
 import com.example.tobyspring.user.domain.User;
 import lombok.NoArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -81,41 +84,19 @@ public class UserDao {
     }
 
     public int getCount() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+        return this.jdbcTemplate.query(new PreparedStatementCreator() {
 
-        try {
-            connection = dataSource.getConnection();
-            StatementStrategy strategy = new DeleteAllStatement();
-
-            preparedStatement = strategy.makePreparedStatement(connection);
-            preparedStatement.executeQuery();
-            resultSet.next();
-            return resultSet.getInt(1);
-        } catch (SQLException exception) {
-            throw exception;
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException exception) {
-                }
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                return con.prepareStatement("SELECT COUNT(*) FROM users");
             }
+        }, new ResultSetExtractor<Integer>() {
 
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException exception) {
-                }
+            @Override
+            public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+                rs.next();
+                return rs.getInt(1);
             }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException exception) {
-                }
-            }
-        }
+        });
     }
 }
