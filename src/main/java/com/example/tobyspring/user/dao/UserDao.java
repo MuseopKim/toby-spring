@@ -84,19 +84,6 @@ public class UserDao {
     }
 
     public int getCount() throws SQLException {
-        return this.jdbcTemplate.query(new PreparedStatementCreator() {
-
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                return con.prepareStatement("SELECT COUNT(*) FROM users");
-            }
-        }, new ResultSetExtractor<Integer>() {
-
-            @Override
-            public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
-                rs.next();
-                return rs.getInt(1);
-            }
-        });
+        return this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
     }
 }
