@@ -99,4 +99,12 @@ class UserDaoTest {
         assertThat(users3.size()).isEqualTo(3);
         assertThat(user3.getId()).isEqualTo(users1.get(0).getId());
     }
+
+    @Test
+    void getAllWhenNothing() throws SQLException {
+        userDao.deleteAll();
+
+        List<User> users0 = userDao.getAll();
+        assertThat(users0.size()).isEqualTo(0);
+    }
 }
