@@ -13,9 +13,19 @@ import java.util.List;
 @NoArgsConstructor
 public class UserDao {
 
-    private DataSource dataSource;
     private ConnectionMaker connectionMaker;
     private JdbcTemplate jdbcTemplate;
+    private RowMapper<User> userRowMapper = new RowMapper<User>() {
+
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
+            user.setId(rs.getString("id"));
+            user.setName(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+            return user;
+        }
+    };
 
     public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
@@ -23,7 +33,6 @@ public class UserDao {
 
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.dataSource = dataSource;
     }
 
     public void add(final User user) {
@@ -33,32 +42,11 @@ public class UserDao {
 
     public User get(String id) throws ClassNotFoundException, SQLException {
         return this.jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?",
-                new Object[]{id}, new RowMapper<User>() {
-                    @Override
-                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        User user = new User();
-                        user.setId(rs.getString("id"));
-                        user.setName(rs.getString("name"));
-                        user.setPassword(rs.getString("password"));
-                        return user;
-                    }
-                });
+                new Object[]{id}, this.userRowMapper);
     }
 
     public List<User> getAll() {
-        return this.jdbcTemplate.query("SELECT * FROM users ORDER BY id",
-                new RowMapper<User>() {
-
-                    @Override
-                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        User user = new User();
-                        user.setId(rs.getString("id"));
-                        user.setName(rs.getString("name"));
-                        user.setPassword(rs.getString("password"));
-
-                        return user;
-                    }
-                });
+        return this.jdbcTemplate.query("SELECT * FROM users ORDER BY id", this.userRowMapper);
     }
 
     public void deleteAll() throws SQLException {
